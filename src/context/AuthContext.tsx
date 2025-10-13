@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       Cookies.set('token', access_token, cookieOptions);
       Cookies.set('user', JSON.stringify(userData), cookieOptions);
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('Error de login:', error);
       throw new Error(error.response?.data?.message || 'Error al iniciar sesión');
     }
   };
@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Después de registrarse, hacer login automáticamente
       await login({ username: userData.username, password: userData.password });
     } catch (error: any) {
-      console.error('Register error:', error);
+      console.error('Error de registro:', error);
       throw new Error(error.response?.data?.message || 'Error al registrarse');
     }
   };
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth debe usarse dentro de un AuthProvider');
   }
   return context;
 };

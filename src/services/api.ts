@@ -50,14 +50,14 @@ class ApiService {
     );
   }
 
-  // Auth endpoints
+  // Endpoints de autenticación
   async login(credentials: LoginDto): Promise<AuthResponse> {
     const { data } = await this.api.post<AuthResponse>('/users/login', credentials);
     return data;
   }
 
   async register(userData: RegisterDto): Promise<User> {
-    const { data } = await this.api.post<User>('/users', userData);
+    const { data } = await this.api.post<User>('/users/register', userData);
     return data;
   }
 
@@ -66,7 +66,7 @@ class ApiService {
     return data;
   }
 
-  // Films endpoints
+  // Endpoints de películas
   async getFilms(): Promise<Film[]> {
     const { data } = await this.api.get<Film[]>('/starwars/films');
     return data;

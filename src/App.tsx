@@ -65,7 +65,7 @@ function App() {
           </main>
           
           <footer className="footer">
-            <p>Star Wars Films &copy; 2024 | May the Force be with you</p>
+            <p>Star Wars Films &copy; 2024 | Que la Fuerza te acompañe</p>
           </footer>
         </div>
       </AuthProvider>
