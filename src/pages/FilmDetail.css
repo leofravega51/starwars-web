@@ -1,0 +1,130 @@
+.film-detail {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.film-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  gap: 20px;
+}
+
+.film-detail-header h1 {
+  color: var(--primary-color);
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.film-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.film-crawl {
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.film-crawl h2 {
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+.film-crawl p {
+  color: #ccc;
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+.film-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.info-card {
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.info-card h3 {
+  color: var(--primary-color);
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.info-card p {
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.film-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 15px;
+  background-color: var(--bg-light);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  text-align: center;
+}
+
+.stat-card strong {
+  display: block;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.stat-card span {
+  display: block;
+  color: var(--primary-color);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.sync-info {
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.back-link {
+  margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .film-detail-header {
+    flex-direction: column;
+  }
+
+  .film-detail-header h1 {
+    font-size: 2rem;
+  }
+
+  .film-stats {
+    justify-content: space-between;
+  }
+}
+
