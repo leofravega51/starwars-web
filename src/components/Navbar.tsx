@@ -1,14 +1,31 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import './Navbar.css';
 
 export const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
+  const { showConfirm, showInfo } = useDialog();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
+    showConfirm(
+      '¿Estás seguro de que deseas cerrar sesión?',
+      async () => {
+        // Esperar un momento adicional para asegurar que el diálogo anterior se cierre
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        // Mostrar diálogo de información mientras se cierra la sesión
+        showInfo('Cerrando sesión... Redirigiendo...', 'Cerrando Sesión', true, 2000);
+        
+        // Esperar antes de cerrar sesión y redirigir (igual que en login)
+        setTimeout(() => {
+          logout();
+          navigate('/login');
+        }, 2000);
+      },
+      'Confirmar Cierre de Sesión'
+    );
   };
 
   return (

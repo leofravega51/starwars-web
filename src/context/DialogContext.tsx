@@ -20,7 +20,7 @@ interface DialogContextType {
   showError: (message: string, title?: string) => void;
   showSuccess: (message: string, title?: string, hideButtons?: boolean, autoClose?: number) => void;
   showWarning: (message: string, title?: string) => void;
-  showInfo: (message: string, title?: string) => void;
+  showInfo: (message: string, title?: string, hideButtons?: boolean, autoClose?: number) => void;
   showConfirm: (message: string, onConfirm: () => void | Promise<void>, title?: string) => void;
 }
 
@@ -31,13 +31,29 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
 
   const showDialog = (options: DialogOptions) => {
-    setDialog({ ...options, open: true });
-    
-    // Si tiene autoClose, cerrar automáticamente después del tiempo especificado
-    if (options.autoClose) {
+    // Si hay un diálogo abierto, cerrarlo primero y esperar antes de mostrar el nuevo
+    if (dialog?.open) {
+      closeDialog();
+      // Esperar un momento más largo para asegurar que el estado se actualice
       setTimeout(() => {
-        closeDialog();
-      }, options.autoClose);
+        setDialog({ ...options, open: true });
+        
+        // Si tiene autoClose, cerrar automáticamente después del tiempo especificado
+        if (options.autoClose) {
+          setTimeout(() => {
+            closeDialog();
+          }, options.autoClose);
+        }
+      }, 200);
+    } else {
+      setDialog({ ...options, open: true });
+      
+      // Si tiene autoClose, cerrar automáticamente después del tiempo especificado
+      if (options.autoClose) {
+        setTimeout(() => {
+          closeDialog();
+        }, options.autoClose);
+      }
     }
   };
 
@@ -50,8 +66,12 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
     if (dialog?.onConfirm) {
       try {
         setLoading(true);
-        await dialog.onConfirm();
+        // Cerrar el diálogo de confirmación primero
         closeDialog();
+        // Esperar un momento para que el estado se actualice
+        await new Promise(resolve => setTimeout(resolve, 100));
+        // Luego ejecutar el callback
+        await dialog.onConfirm();
       } catch (error) {
         setLoading(false);
         console.error('Error en confirmación del diálogo:', error);
@@ -97,12 +117,14 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const showInfo = (message: string, title: string = 'Información') => {
+  const showInfo = (message: string, title: string = 'Información', hideButtons: boolean = false, autoClose?: number) => {
     showDialog({
       title,
       message,
       type: 'info',
-      confirmText: 'Aceptar',
+      confirmText: hideButtons ? undefined : 'Aceptar',
+      hideButtons,
+      autoClose,
     });
   };
 
