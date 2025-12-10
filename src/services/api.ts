@@ -41,9 +41,15 @@ class ApiService {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          Cookies.remove('token');
-          Cookies.remove('user');
-          window.location.href = '/login';
+          const isLoginPage = window.location.pathname === '/login';
+          const isRegisterPage = window.location.pathname === '/register';
+          
+          // Solo redirigir si no estamos en las páginas de autenticación
+          if (!isLoginPage && !isRegisterPage) {
+            Cookies.remove('token');
+            Cookies.remove('user');
+            window.location.href = '/login';
+          }
         }
         return Promise.reject(error);
       }

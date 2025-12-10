@@ -20,7 +20,8 @@ export const Login = () => {
       await login({ username, password });
       navigate('/films');
     } catch (err: any) {
-      showError(err.message || 'Error al iniciar sesión');
+      const errorMessage = err?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
+      showError(errorMessage, 'Error de autenticación');
     } finally {
       setLoading(false);
     }

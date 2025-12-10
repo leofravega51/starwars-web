@@ -38,7 +38,8 @@ export const Register = () => {
       await register(formData);
       navigate('/films');
     } catch (err: any) {
-      showError(err.message || 'Error al registrarse');
+      const errorMessage = err?.message || 'Error al registrarse. Por favor, intenta nuevamente.';
+      showError(errorMessage, 'Error de registro');
     } finally {
       setLoading(false);
     }

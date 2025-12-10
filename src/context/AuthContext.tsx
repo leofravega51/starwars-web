@@ -52,7 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       Cookies.set('user', JSON.stringify(userData), cookieOptions);
     } catch (error: any) {
       console.error('Error de login:', error);
-      throw new Error(error.response?.data?.message || 'Error al iniciar sesión');
+      // Extraer el mensaje de error de manera más robusta
+      const errorMessage = 
+        error.response?.data?.message || 
+        error.response?.data?.error || 
+        error.message || 
+        'Error al iniciar sesión. Verifica tus credenciales.';
+      throw new Error(errorMessage);
     }
   };
 
@@ -63,7 +69,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await login({ username: userData.username, password: userData.password });
     } catch (error: any) {
       console.error('Error de registro:', error);
-      throw new Error(error.response?.data?.message || 'Error al registrarse');
+      // Extraer el mensaje de error de manera más robusta
+      const errorMessage = 
+        error.response?.data?.message || 
+        error.response?.data?.error || 
+        error.message || 
+        'Error al registrarse. Por favor, intenta nuevamente.';
+      throw new Error(errorMessage);
     }
   };
 
