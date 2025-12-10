@@ -11,12 +11,14 @@ interface DialogOptions {
   cancelText?: string;
   onConfirm?: () => void | Promise<void>;
   onCancel?: () => void;
+  hideButtons?: boolean;
+  autoClose?: number; // Tiempo en ms para cerrar automáticamente
 }
 
 interface DialogContextType {
   showDialog: (options: DialogOptions) => void;
   showError: (message: string, title?: string) => void;
-  showSuccess: (message: string, title?: string) => void;
+  showSuccess: (message: string, title?: string, hideButtons?: boolean, autoClose?: number) => void;
   showWarning: (message: string, title?: string) => void;
   showInfo: (message: string, title?: string) => void;
   showConfirm: (message: string, onConfirm: () => void | Promise<void>, title?: string) => void;
@@ -30,6 +32,13 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
 
   const showDialog = (options: DialogOptions) => {
     setDialog({ ...options, open: true });
+    
+    // Si tiene autoClose, cerrar automáticamente después del tiempo especificado
+    if (options.autoClose) {
+      setTimeout(() => {
+        closeDialog();
+      }, options.autoClose);
+    }
   };
 
   const closeDialog = () => {
@@ -68,12 +77,14 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const showSuccess = (message: string, title: string = 'Éxito') => {
+  const showSuccess = (message: string, title: string = 'Éxito', hideButtons: boolean = false, autoClose?: number) => {
     showDialog({
       title,
       message,
       type: 'success',
-      confirmText: 'Aceptar',
+      confirmText: hideButtons ? undefined : 'Aceptar',
+      hideButtons,
+      autoClose,
     });
   };
 
@@ -116,8 +127,11 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
     >
       {children}
       {dialog?.open && (
-        <div className="dialog-overlay" onClick={dialog.type === 'confirm' ? undefined : handleCancel}>
-          <div className={`dialog ${dialog.type || 'info'}`} onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="dialog-overlay" 
+          onClick={dialog.hideButtons ? undefined : (dialog.type === 'confirm' ? undefined : handleCancel)}
+        >
+          <div className={`dialog ${dialog.type || 'info'} ${dialog.hideButtons ? 'no-buttons' : ''}`} onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
               <div className="dialog-header-content">
                 <div className={`dialog-icon ${dialog.type || 'info'}`}>
@@ -129,7 +143,7 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
                 </div>
                 <h3 className="dialog-title">{dialog.title || 'Mensaje'}</h3>
               </div>
-              {dialog.type !== 'confirm' && (
+              {!dialog.hideButtons && dialog.type !== 'confirm' && (
                 <button className="dialog-close" onClick={handleCancel} disabled={loading}>
                   ×
                 </button>
@@ -137,35 +151,42 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
             </div>
             <div className="dialog-body">
               <p className="dialog-message">{dialog.message}</p>
+              {dialog.hideButtons && (
+                <div className="dialog-loading-spinner">
+                  <div className="spinner"></div>
+                </div>
+              )}
             </div>
-            <div className="dialog-footer">
-              {dialog.type === 'confirm' && (
+            {!dialog.hideButtons && (
+              <div className="dialog-footer">
+                {dialog.type === 'confirm' && (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleCancel}
+                    disabled={loading}
+                  >
+                    {dialog.cancelText || 'Cancelar'}
+                  </button>
+                )}
                 <button
-                  className="btn btn-secondary"
-                  onClick={handleCancel}
+                  className={`btn ${
+                    dialog.type === 'error' 
+                      ? 'btn-danger' 
+                      : dialog.type === 'confirm' 
+                      ? 'btn-primary' 
+                      : dialog.type === 'success'
+                      ? 'btn-success'
+                      : dialog.type === 'warning'
+                      ? 'btn-warning'
+                      : 'btn-primary'
+                  }`}
+                  onClick={handleConfirm}
                   disabled={loading}
                 >
-                  {dialog.cancelText || 'Cancelar'}
+                  {loading ? 'Cargando...' : dialog.confirmText || 'Aceptar'}
                 </button>
-              )}
-              <button
-                className={`btn ${
-                  dialog.type === 'error' 
-                    ? 'btn-danger' 
-                    : dialog.type === 'confirm' 
-                    ? 'btn-primary' 
-                    : dialog.type === 'success'
-                    ? 'btn-success'
-                    : dialog.type === 'warning'
-                    ? 'btn-warning'
-                    : 'btn-primary'
-                }`}
-                onClick={handleConfirm}
-                disabled={loading}
-              >
-                {loading ? 'Cargando...' : dialog.confirmText || 'Aceptar'}
-              </button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -9,7 +9,7 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const { showError } = useDialog();
+  const { showError, showSuccess } = useDialog();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -18,11 +18,16 @@ export const Login = () => {
 
     try {
       await login({ username, password });
-      navigate('/films');
+      // Mostrar diálogo de éxito sin botones antes de redirigir
+      showSuccess('¡Inicio de sesión exitoso! Redirigiendo...', 'Bienvenido', true, 2000);
+      
+      // Redirigir después de mostrar el diálogo
+      setTimeout(() => {
+        navigate('/films');
+      }, 2000);
     } catch (err: any) {
       const errorMessage = err?.message || 'Error al iniciar sesión. Verifica tus credenciales.';
       showError(errorMessage, 'Error de autenticación');
-    } finally {
       setLoading(false);
     }
   };
