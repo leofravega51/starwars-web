@@ -119,7 +119,16 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
         <div className="dialog-overlay" onClick={dialog.type === 'confirm' ? undefined : handleCancel}>
           <div className={`dialog ${dialog.type || 'info'}`} onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
-              <h3 className="dialog-title">{dialog.title || 'Mensaje'}</h3>
+              <div className="dialog-header-content">
+                <div className={`dialog-icon ${dialog.type || 'info'}`}>
+                  {dialog.type === 'error' && '❌'}
+                  {dialog.type === 'success' && '✅'}
+                  {dialog.type === 'warning' && '⚠️'}
+                  {dialog.type === 'info' && 'ℹ️'}
+                  {dialog.type === 'confirm' && '❓'}
+                </div>
+                <h3 className="dialog-title">{dialog.title || 'Mensaje'}</h3>
+              </div>
               {dialog.type !== 'confirm' && (
                 <button className="dialog-close" onClick={handleCancel} disabled={loading}>
                   ×
@@ -140,7 +149,17 @@ export const DialogProvider = ({ children }: { children: ReactNode }) => {
                 </button>
               )}
               <button
-                className={`btn ${dialog.type === 'error' ? 'btn-danger' : dialog.type === 'confirm' ? 'btn-primary' : 'btn-primary'}`}
+                className={`btn ${
+                  dialog.type === 'error' 
+                    ? 'btn-danger' 
+                    : dialog.type === 'confirm' 
+                    ? 'btn-primary' 
+                    : dialog.type === 'success'
+                    ? 'btn-success'
+                    : dialog.type === 'warning'
+                    ? 'btn-warning'
+                    : 'btn-primary'
+                }`}
                 onClick={handleConfirm}
                 disabled={loading}
               >
