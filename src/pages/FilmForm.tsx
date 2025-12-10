@@ -2,6 +2,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { Loading } from '../components/Loading';
+import { useDialog } from '../context/DialogContext';
 import type { CreateFilmDto } from '../types';
 import './FilmForm.css';
 
@@ -9,10 +10,10 @@ export const FilmForm = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = Boolean(id);
   const navigate = useNavigate();
+  const { showError, showSuccess } = useDialog();
   
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
   
   const [formData, setFormData] = useState<CreateFilmDto>({
     title: '',
@@ -54,7 +55,7 @@ export const FilmForm = () => {
         description: data.description || '',
       });
     } catch (err: any) {
-      setError(err.message || 'Error al cargar la película');
+      showError(err.message || 'Error al cargar la película');
     } finally {
       setLoading(false);
     }
@@ -70,18 +71,19 @@ export const FilmForm = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
     setSaving(true);
 
     try {
       if (isEdit && id) {
         await apiService.updateFilm(id, formData);
+        showSuccess('Película actualizada correctamente');
       } else {
         await apiService.createFilm(formData);
+        showSuccess('Película creada correctamente');
       }
       navigate('/films');
     } catch (err: any) {
-      setError(err.response?.data?.message || err.message || 'Error al guardar la película');
+      showError(err.response?.data?.message || err.message || 'Error al guardar la película');
     } finally {
       setSaving(false);
     }
@@ -93,8 +95,6 @@ export const FilmForm = () => {
     <div className="container">
       <div className="form-container">
         <h1>{isEdit ? 'Editar Película' : 'Nueva Película'}</h1>
-        
-        {error && <div className="alert alert-error">{error}</div>}
         
         <form onSubmit={handleSubmit} className="film-form">
           <div className="form-row">

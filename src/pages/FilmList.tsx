@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { FilmCard } from '../components/FilmCard';
 import { Loading } from '../components/Loading';
+import { useDialog } from '../context/DialogContext';
 import type { Film } from '../types';
 import './FilmList.css';
 
 export const FilmList = () => {
   const [films, setFilms] = useState<Film[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [filter, setFilter] = useState<'all' | 'api' | 'local' | 'modified'>('all');
+  const { showError } = useDialog();
 
   useEffect(() => {
     loadFilms();
@@ -21,7 +22,7 @@ export const FilmList = () => {
       const data = await apiService.getFilms();
       setFilms(data);
     } catch (err: any) {
-      setError(err.message || 'Error al cargar las películas');
+      showError(err.message || 'Error al cargar las películas');
     } finally {
       setLoading(false);
     }
@@ -36,14 +37,6 @@ export const FilmList = () => {
   }).sort((a, b) => a.episode_id - b.episode_id);
 
   if (loading) return <Loading />;
-
-  if (error) {
-    return (
-      <div className="container">
-        <div className="alert alert-error">{error}</div>
-      </div>
-    );
-  }
 
   return (
     <div className="container">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import { Loading } from '../components/Loading';
 import type { Film } from '../types';
 import './FilmDetail.css';
@@ -10,9 +11,9 @@ export const FilmDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [film, setFilm] = useState<Film | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [deleting, setDeleting] = useState(false);
   const { isAdmin } = useAuth();
+  const { showError, showSuccess, showConfirm } = useDialog();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,25 +28,30 @@ export const FilmDetail = () => {
       const data = await apiService.getFilm(filmId);
       setFilm(data);
     } catch (err: any) {
-      setError(err.message || 'Error al cargar la película');
+      showError(err.message || 'Error al cargar la película');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!film || !window.confirm(`¿Estás seguro de eliminar "${film.title}"?`)) {
-      return;
-    }
+    if (!film) return;
 
-    try {
-      setDeleting(true);
-      await apiService.deleteFilm(film._id);
-      navigate('/films');
-    } catch (err: any) {
-      setError(err.message || 'Error al eliminar la película');
-      setDeleting(false);
-    }
+    showConfirm(
+      `¿Estás seguro de eliminar "${film.title}"? Esta acción no se puede deshacer.`,
+      async () => {
+        try {
+          setDeleting(true);
+          await apiService.deleteFilm(film._id);
+          showSuccess('Película eliminada correctamente');
+          navigate('/films');
+        } catch (err: any) {
+          showError(err.message || 'Error al eliminar la película');
+          setDeleting(false);
+        }
+      },
+      'Confirmar eliminación'
+    );
   };
 
   const formatDate = (dateString: string) => {
@@ -58,10 +64,9 @@ export const FilmDetail = () => {
 
   if (loading) return <Loading />;
 
-  if (error || !film) {
+  if (!film) {
     return (
       <div className="container">
-        <div className="alert alert-error">{error || 'Película no encontrada'}</div>
         <Link to="/films" className="btn btn-secondary">Volver a películas</Link>
       </div>
     );

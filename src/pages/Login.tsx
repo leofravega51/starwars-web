@@ -1,26 +1,26 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import './Auth.css';
 
 export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { showError } = useDialog();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       await login({ username, password });
       navigate('/films');
     } catch (err: any) {
-      setError(err.message);
+      showError(err.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -30,8 +30,6 @@ export const Login = () => {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Iniciar Sesión</h2>
-        
-        {error && <div className="alert alert-error">{error}</div>}
         
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">

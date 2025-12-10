@@ -1,30 +1,33 @@
 import { useState } from 'react';
 import { apiService } from '../services/api';
+import { useDialog } from '../context/DialogContext';
 import type { SyncResult } from '../types';
 import './SyncPage.css';
 
 export const SyncPage = () => {
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState<SyncResult | null>(null);
-  const [error, setError] = useState('');
+  const { showError, showSuccess, showConfirm, showInfo } = useDialog();
 
   const handleSync = async () => {
-    if (!window.confirm('¿Estás seguro de sincronizar las películas desde la API externa?')) {
-      return;
-    }
+    showConfirm(
+      '¿Estás seguro de sincronizar las películas desde la API externa?',
+      async () => {
+        setSyncing(true);
+        setResult(null);
 
-    setSyncing(true);
-    setError('');
-    setResult(null);
-
-    try {
-      const data = await apiService.syncFilms();
-      setResult(data);
-    } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Error al sincronizar');
-    } finally {
-      setSyncing(false);
-    }
+        try {
+          const data = await apiService.syncFilms();
+          setResult(data);
+          showSuccess('Sincronización completada correctamente');
+        } catch (err: any) {
+          showError(err.response?.data?.error || err.message || 'Error al sincronizar');
+        } finally {
+          setSyncing(false);
+        }
+      },
+      'Confirmar Sincronización'
+    );
   };
 
   return (
@@ -44,8 +47,6 @@ export const SyncPage = () => {
             <li>📌 Las películas creadas localmente no se verán afectadas</li>
           </ul>
         </div>
-
-        {error && <div className="alert alert-error">{error}</div>}
 
         {result && (
           <div className="sync-result">

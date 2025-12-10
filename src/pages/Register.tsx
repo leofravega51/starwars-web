@@ -1,6 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDialog } from '../context/DialogContext';
 import './Auth.css';
 
 export const Register = () => {
@@ -11,9 +12,9 @@ export const Register = () => {
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
+  const { showError } = useDialog();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,10 +26,9 @@ export const Register = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      showError('Las contraseñas no coinciden');
       return;
     }
 
@@ -38,7 +38,7 @@ export const Register = () => {
       await register(formData);
       navigate('/films');
     } catch (err: any) {
-      setError(err.message);
+      showError(err.message || 'Error al registrarse');
     } finally {
       setLoading(false);
     }
@@ -48,8 +48,6 @@ export const Register = () => {
     <div className="auth-container">
       <div className="auth-card">
         <h2 className="auth-title">Registrarse</h2>
-        
-        {error && <div className="alert alert-error">{error}</div>}
         
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
